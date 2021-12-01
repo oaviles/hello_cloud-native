@@ -7,7 +7,7 @@ env:
   ACR_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
   image_name: oapi
   #tag: ${{ github.sha }}
-  TAG: latest
+  tag: latest
 
 jobs:
   # This workflow contains a job called "build"
@@ -33,5 +33,5 @@ jobs:
       - name: Build and Push Image to ACR
         #working-directory: src
         run: |
-          docker build . -t ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.TAG}
-          docker push ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.TAG}
+          docker build . -t ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.tag}}
+          docker push ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.tag}}
