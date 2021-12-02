@@ -7,7 +7,7 @@ env:
   ACR_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
   image_name: oapi
   #tag: ${{ github.sha }}
-  tag: latest
+  tag: 7999
 
 jobs:
   # This workflow contains a job called "build"
