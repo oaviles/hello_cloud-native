@@ -1,0 +1,37 @@
+name: Build and Push image to ACR
+
+# Controls when the workflow will run
+on: workflow_dispatch
+
+env:
+  ACR_REGISTRY: ${{ secrets.CONTAINER_REGISTRY }}
+  image_name: oapi
+  #tag: ${{ github.sha }}
+  tag: latest
+
+jobs:
+  # This workflow contains a job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+  
+      - name: Azure Container Registry Login
+        uses: Azure/docker-login@v1
+        with:
+          # Container registry username
+          username: ${{ secrets.ACR_USERNAME }}
+          # Container registry password
+          password: ${{ secrets.ACR_PASSWORD }}
+          # Container registry server url
+          login-server: ${{env.ACR_REGISTRY}}
+          
+      - name: Build and Push Image to ACR
+        #working-directory: src
+        run: |
+          docker build . -t ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.tag}}
+          docker push ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.tag}}
