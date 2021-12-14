@@ -1,0 +1,24 @@
+on: workflow_dispatch
+name: Deploy AKS
+jobs:
+  deploy-aks:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checkout code
+    - uses: actions/checkout@main
+
+      # Log into Azure
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Deploy ARM template
+    - name: Deploy AKS
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ./IaC/azuredeploy.json
+        # parameters: storageAccounts_name=oamx
+        parameters: ./IaC/azuredeploy.parameters.json
