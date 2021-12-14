@@ -17,4 +17,4 @@ jobs:
       with:
         inlineScript: |
           az aks get-credentials --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }}
-          az aks update -g ${{ secrets.CLUSTER_AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR_REGISTRY}}
+          az aks update -g ${{ secrets.AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR_REGISTRY}}
