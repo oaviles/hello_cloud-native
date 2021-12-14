@@ -17,3 +17,4 @@ jobs:
       with:
         inlineScript: |
           az aks delete --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }} --yes
+          az acr delete -n ${{ secrets.ACR }} --yes
