@@ -10,7 +10,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
     
     - name: Update AKS with ACR
       uses: Azure/cli@v1
