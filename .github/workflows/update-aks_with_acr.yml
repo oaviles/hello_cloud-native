@@ -1,0 +1,20 @@
+on: workflow_dispatch
+name: Deploy ACR
+jobs:
+  deploy-acr:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@main
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Deploy ACR
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az aks get-credentials --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }}
+          az aks update -g ${{ secrets.CLUSTER_NAME }} -n ${{ secrets.AZURE_RG }} --attach-acr ${{ secrets.ACR_REGISTRY}}
