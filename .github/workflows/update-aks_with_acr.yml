@@ -1,7 +1,7 @@
 on: workflow_dispatch
-name: Udpate AKS with ACR
+name: Create ACR and udpate AKS
 jobs:
-  updating-aks:
+  create-acr:
     runs-on: ubuntu-latest
     steps:
 
@@ -10,9 +10,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
     
-    - name: Update AKS with ACR
+    - name: Create ACR and udpate AKS
       uses: Azure/cli@v1
       with:
         inlineScript: |
