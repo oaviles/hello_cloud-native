@@ -1,0 +1,19 @@
+on: workflow_dispatch
+name: Create ACR
+jobs:
+  create-acr:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@main
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+    
+    - name: Create ACR
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.ACR }} --sku Basic
