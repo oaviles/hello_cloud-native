@@ -1,0 +1,22 @@
+on: workflow_dispatch
+name: Enable Observability
+jobs:
+  enable-observability:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@main
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Enable Observability
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az resource create --resource-type Microsoft.OperationalInsights/workspaces --name ${{ secrets.WORKSPACE_NAME }} --resource-group ${{ secrets.AZURE_RG }} --location ${{ secrets.REGION_NAME }} --properties '{}' -o table
+          WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.WORKSPACE_NAME }} --query "id" -o tsv)
+          echo $WORKSPACE_ID
+          az aks enable-addons --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.CLUSTER_NAME }} --addons monitoring --workspace-resource-id $WORKSPACE_ID
