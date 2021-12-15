@@ -28,10 +28,10 @@ jobs:
           # Container registry password
           password: ${{ secrets.ACR_PASSWORD }}
           # Container registry server url
-          login-server: ${{env.ACR_REGISTRY}}
+          login-server: ${{ env.ACR_REGISTRY }}
           
       - name: Build and Push Image to ACR
         #working-directory: src
         run: |
-          docker build . -t ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.tag}}
-          docker push ${{env.ACR_REGISTRY}}/${{env.image_name}}:${{env.tag}}
+          docker build . -t ${{ env.ACR_REGISTRY }}/${{ env.image_name }}:${{ env.tag }}
+          docker push ${{ env.ACR_REGISTRY }}/${{ env.image_name }}:${{ env.tag }}
