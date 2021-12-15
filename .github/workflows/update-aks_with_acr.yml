@@ -1,7 +1,7 @@
 on: workflow_dispatch
-name: Create ACR and udpate AKS
+name: Udpate AKS with ACR
 jobs:
-  create-acr:
+  update-aks:
     runs-on: ubuntu-latest
     steps:
 
@@ -12,9 +12,8 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
     
-    - name: Create ACR and udpate AKS
+    - name: Udpate AKS with ACR
       uses: Azure/cli@v1
       with:
         inlineScript: |
-          az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.ACR }} --sku Basic
           az aks update -g ${{ secrets.AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR }}
