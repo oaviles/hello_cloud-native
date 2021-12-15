@@ -23,6 +23,7 @@ spec:
       containers:
       - image: acraksworkshop.azurecr.io/oapi
         name: api
+        imagePullPolicy: Always
         ports:
         - containerPort: 7999
         resources:
