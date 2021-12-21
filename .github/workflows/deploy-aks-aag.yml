@@ -17,3 +17,4 @@ jobs:
       with:
         inlineScript: |
           az aks create -n ${{ secrets.CLUSTER_NAME }} -g ${{ secrets.AZURE_RG }} --network-plugin azure --enable-managed-identity -a ingress-appgw --appgw-name ${{ secrets.AAG_INGRESSCONTROLLER }} --appgw-subnet-cidr "10.2.0.0/16" --generate-ssh-keys --attach-acr ${{ secrets.ACR_NAME }} --enable-addons monitoring --enable-cluster-autoscaler --min-count 3 --max-count 10 --yes
+        # az aks create -n ${{ secrets.CLUSTER_NAME }} -g ${{ secrets.AZURE_RG }} --network-plugin azure --enable-managed-identity -a ingress-appgw --appgw-name ${{ secrets.AAG_INGRESSCONTROLLER }} --appgw-subnet-cidr "10.2.0.0/16" --generate-ssh-keys --attach-acr ${{ secrets.ACR_NAME }} --yes
