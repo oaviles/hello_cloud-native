@@ -1,0 +1,9 @@
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/container_sample
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/appsettings.Development.json
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/appsettings.json
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/IaC/azuredeploy.json
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/IaC/azuredeploy.parameters.json
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/container_sample.dll
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/container_sample.deps.json
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/container_sample.runtimeconfig.json
+/workspaces/webapi/bin/Release/netcoreapp3.1/publish/container_sample.pdb

@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "H8HOq+mWYWh956XaoS9WD30Fddt0I19hx//FEhRhpWTfKv81rDtrxfQPJ5Mb7Nz1J9jSKqKnKByceI0k3YqFsA==",
+  "dgSpecHash": "P0573H1hUd210H/ZB22ti/JHKtzdqpW9ELYwq7bJJK+Rfbyj5mXvCPc86LdZcPOQHCTbtHxg7GR2JeDZ27rscA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\aaron\\code\\container_sample\\container_sample.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/workspaces/webapi/container_sample.csproj",
+  "expectedPackageFiles": [
+    "/var/nuget/microsoft.netcore.app.ref/3.1.0/microsoft.netcore.app.ref.3.1.0.nupkg.sha512",
+    "/var/nuget/microsoft.aspnetcore.app.ref/3.1.10/microsoft.aspnetcore.app.ref.3.1.10.nupkg.sha512",
+    "/var/nuget/microsoft.netcore.app.host.linux-x64/3.1.18/microsoft.netcore.app.host.linux-x64.3.1.18.nupkg.sha512"
+  ],
   "logs": []
 }
