@@ -16,4 +16,4 @@ jobs:
       uses: Azure/cli@v1
       with:
         inlineScript: |
-          az aks create ${{ secrets.CLUSTER_NAME }} -g ${{ secrets.AZURE_RG }} --network-plugin azure --enable-managed-identity -a ingress-appgw --appgw-name ${{ secrets.AAG_INGRESSCONTROLLER }} --appgw-subnet-cidr "10.2.0.0/16" --generate-ssh-keys --yes
+          az aks create -n ${{ secrets.CLUSTER_NAME }} -g ${{ secrets.AZURE_RG }} --network-plugin azure --enable-managed-identity -a ingress-appgw --appgw-name ${{ secrets.AAG_INGRESSCONTROLLER }} --appgw-subnet-cidr "10.2.0.0/16" --generate-ssh-keys --yes
