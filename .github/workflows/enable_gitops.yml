@@ -1,5 +1,5 @@
 on: workflow_dispatch
-name: Enable_Azure-ARC_and_GitOps
+name: Enable Azure ARC and GitOps
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
