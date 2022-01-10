@@ -1,0 +1,27 @@
+on: workflow_dispatch
+name: Enable_Azure-ARC_and_GitOps
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  azcli-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Azure CLI script
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.16.0
+        inlineScript: |
+          az login --service-principal -u ${{ secrets.CLIENTID }} -p ${{ secrets.CLIENTSECRET }} --tenant ${{ secrets.TENANTID }}
+          az acr helm install-cli --client-version 3.6.1 --yes
+          az aks get-credentials --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }}
+          az config set extension.use_dynamic_install=yes_without_prompt
+          az connectedk8s connect --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }}
+          az config set extension.use_dynamic_install=yes_without_prompt
+          az extension add --name connectedk8s
+          az k8s-configuration create --name arc-app-demo --cluster-name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }} --operator-instance-name arc-app --operator-namespace arc-demo --operator-params='--git-poll-interval 3s --git-readonly --git-path=releases/prod' --enable-helm-operator --helm-operator-chart-version='1.2.0' --helm-operator-params='--set helm.versions=v3' --repository-url https://github.com/oaviles/hello_arc.git --scope namespace --cluster-type connectedClusters
