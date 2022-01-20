@@ -1,0 +1,31 @@
+name: Load Test Microservice
+
+# Controls when the workflow will run
+on: workflow_dispatch
+
+env:
+  LOAD_TEST_RESOURCE: ${{ secrets.LOADTEST_RESOURCE }} # "<Name of your load test resource>"
+  LOAD_TEST_RESOURCE_GROUP: ${{ secrets.LOADTEST_RG }} # "<Name of your load test resource group>"
+  LOCATION: "East US"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  loadTest:
+    name: Load Test Microservice
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub Actions 
+        uses: actions/checkout@v2
+          
+      - name: Login to Azure
+        uses: azure/login@v1
+        continue-on-error: false
+        with:
+          creds: ${{ secrets.LOAD_TEST_CREDENTIALS }}
+        
+      - name: 'Azure Load Testing'
+        uses: azure/load-testing@v1
+        with:
+          loadTestConfigFile: 'LoadTestMicroservice.yaml'
+          loadTestResource: ${{ env.LOAD_TEST_RESOURCE }}
+          resourceGroup: ${{ env.LOAD_TEST_RESOURCE_GROUP }} 
