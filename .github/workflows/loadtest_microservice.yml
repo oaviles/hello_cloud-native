@@ -26,6 +26,6 @@ jobs:
       - name: 'Azure Load Testing'
         uses: azure/load-testing@v1
         with:
-          loadTestConfigFile: 'LoadTestMicroservice.yaml'
+          loadTestConfigFile: 'loadtest/LoadTestMicroservice.yaml'
           loadTestResource: ${{ env.LOAD_TEST_RESOURCE }}
           resourceGroup: ${{ env.LOAD_TEST_RESOURCE_GROUP }} 
