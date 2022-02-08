@@ -11,7 +11,7 @@ metadata:
   name: api
   namespace: api
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: api
