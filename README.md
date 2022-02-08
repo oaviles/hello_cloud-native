@@ -10,6 +10,9 @@ GitOps for Azure Kubernetes Service, reference architecture:
 [GitOps for AKS](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gitops-aks/gitops-blueprint-aks)
 ![](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gitops-aks/media/gitops-blueprint-aks.svg)
 
+### Check More DevSquad Projects
+* [DevSquad Main Project](https://github.com/oaviles/DevSquad)
+
 > Note: This page is getting updated so make sure to check regularly for new resources.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
