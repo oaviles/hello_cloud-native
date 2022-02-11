@@ -1,5 +1,5 @@
 on: workflow_dispatch
-name: Enable Observability
+name: 2 Enable Observability
 jobs:
   enable-observability:
     runs-on: ubuntu-latest
