@@ -1,5 +1,5 @@
 on: [workflow_dispatch]
-name: Enable HPA on API
+name: 4 Enable HPA on API
 jobs:
   build:
     runs-on: ubuntu-latest
