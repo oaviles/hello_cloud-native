@@ -1,5 +1,5 @@
 on: [workflow_dispatch]
-name: Deploy and Expose Microservice
+name: 3 Deploy and Expose Microservice
 jobs:
   build:
     runs-on: ubuntu-latest
