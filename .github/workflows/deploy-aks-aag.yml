@@ -1,5 +1,5 @@
 on: workflow_dispatch
-name: Deploy AKS with Ingress Controller
+name: 1 Deploy AKS with Ingress Controller
 jobs:
   deploy-cluster:
     runs-on: ubuntu-latest
