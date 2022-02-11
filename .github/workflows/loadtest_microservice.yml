@@ -1,7 +1,7 @@
-name: Load Test Microservice
+name: 5 Load Test Microservice
 
 # Controls when the workflow will run
-on: 5 workflow_dispatch
+on: workflow_dispatch
 
 env:
   LOAD_TEST_RESOURCE: ${{ secrets.LOADTEST_RESOURCE }} # "<Name of your load test resource>"
