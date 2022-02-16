@@ -10,6 +10,13 @@ GitOps for Azure Kubernetes Service, reference architecture:
 [GitOps for AKS](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gitops-aks/gitops-blueprint-aks)
 ![](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gitops-aks/media/gitops-blueprint-aks.svg)
 
+#### Other Resources
+- [Microservices with .NET](https://dotnet.microsoft.com/en-us/apps/aspnet/microservices)
+- [Create a web API with ASP.NET Core](https://docs.microsoft.com/en-us/aspnet/core/tutorials/min-web-api?view=aspnetcore-6.0&tabs=visual-studio-code)
+- [.NET CLI to build webapi](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-new-sdk-templates#webapi)
+- [Docker in Visual Studio Code](https://code.visualstudio.com/docs/containers/overview)
+- [Dockerize an ASP.NET Core application](https://docs.docker.com/samples/dotnetcore/)
+
 ### Check More DevSquad Projects
 * [DevSquad Main Project](https://github.com/oaviles/DevSquad)
 
