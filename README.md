@@ -18,7 +18,7 @@ GitOps for Azure Kubernetes Service, reference architecture:
 - [Dockerize an ASP.NET Core application](https://docs.docker.com/samples/dotnetcore/)
 
 ### Check More DevSquad Projects
-* [DevSquad Main Project](https://github.com/oaviles/DevSquad)
+* [DevSquad Main Project](https://github.com/microsoft/fast-prototyping)
 
 > Note: This page is getting updated so make sure to check regularly for new resources.
 
