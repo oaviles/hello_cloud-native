@@ -1,0 +1,122 @@
+name: Orchestrator Workflow
+
+on: workflow_dispatch
+
+jobs:
+  # ------- Main Orchestration  ---------------
+  
+  deploy-aks-iac:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy AKS (IaC)
+        uses: ./.github/workflows/deploy-aks.yml
+  
+  test-aks:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: deploy-aks-iac
+    steps:
+      - name: Test AKS
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Test AKS'
+          
+  config-acr-with-aks:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: test-aks
+    steps:
+      - name: Deploy AKS (IaC)
+        uses: ./.github/workflows/update-aks_with_acr.yml
+        
+  integration-test-acr:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: config-acr-with-aks
+    steps:
+      - name: Integration Test ACR and AKS
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Integration Test ACR and AKS'
+  
+  setup-observability:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: test-aks
+    steps:
+      - name: Deploy AKS (IaC)
+        uses: ./.github/workflows/enable-observability.yml
+  
+  test-observability:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: setup-observability
+    steps:
+      - name: Test Observability
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Test Observability'     
+          
+  deploy-microservice:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: test-observability
+    steps:
+      - name: Deploy AKS (IaC)
+        uses: ./.github/workflows/deploy-microservice.yml
+        
+  test-microservice-deployment:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: deploy-microservice
+    steps:
+      - name: Test Microservice Deployment
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Test Microservice Deployment'  
+          
+  # ------ Main Orchestration End ---------
+  
+  # ------- Issue Orchestration ----------
+  
+  create-issue-aks-iac:
+    if: ${{ failure() }}
+    needs: [test-aks]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail AKS Provisioning
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Fail AKS Provisioning'
+          
+  create-issue-integration-test-acr:
+    if: ${{ failure() }}
+    needs: [integration-test-acr]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail ACR Provisioning
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Fail ACR Provisioning'
+  
+  create-issue-setup-obserbavility:
+    if: ${{ failure() }}
+    needs: [test-observability]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail Observability
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Fail Observability'
+          
+  create-issue-microservice-deployment:
+    if: ${{ failure() }}
+    needs: [test-observability]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail Microservice Deployment
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Fail Microservice Deployment'
+          
+   # ------- Issue Orchestration End ----------
