@@ -1,6 +1,7 @@
 name: Orchestrator Workflow
 
-on: [workflow_dispatch, workflow_call]
+on: workflow_call
+
 
 jobs:
   # ------- Main Orchestration  ---------------
