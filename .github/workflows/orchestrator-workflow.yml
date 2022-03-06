@@ -6,13 +6,13 @@ on: workflow_dispatch
 jobs:
   # ------- Main Orchestration  ---------------
   
-  deploy-aks:
+  IaC:
     uses: ./.github/workflows/deploy-aks.yml
   
   test-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: deploy-aks
+    needs: IaC
     steps:
       - name: Test AKS
         uses: oaviles/javascript_action@v1.1
