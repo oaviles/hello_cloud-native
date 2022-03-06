@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@main
     
       - name: Deploy AKS (IaC)
-        uses: ./.github/workflows/deploy-aks.yml
+        uses: ./.github/workflows/deploy-aks.yml@main
   
   test-aks:
     runs-on: ubuntu-latest
