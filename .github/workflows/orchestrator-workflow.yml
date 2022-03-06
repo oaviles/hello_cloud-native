@@ -9,6 +9,8 @@ jobs:
   deploy-aks:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@main
+    
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/deploy-aks.yml
   
