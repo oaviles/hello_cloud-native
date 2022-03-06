@@ -5,16 +5,17 @@ on: workflow_dispatch
 jobs:
   # ------- Main Orchestration  ---------------
   
-  deploy-aks-iac:
+  deploy-aks:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/deploy-aks.yml
   
   test-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: deploy-aks-iac
+    needs: deploy-aks
     steps:
       - name: Test AKS
         uses: oaviles/javascript_action@v1.1
@@ -26,6 +27,7 @@ jobs:
     if: ${{ success() }}
     needs: test-aks
     steps:
+      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/update-aks_with_acr.yml
         
@@ -42,8 +44,9 @@ jobs:
   setup-observability:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: test-aks
+    needs: integration-test-acr
     steps:
+      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/enable-observability.yml
   
@@ -62,6 +65,7 @@ jobs:
     if: ${{ success() }}
     needs: test-observability
     steps:
+      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/deploy-microservice.yml
         
@@ -99,7 +103,7 @@ jobs:
         with:
           message: 'Fail ACR Provisioning'
   
-  create-issue-setup-obserbavility:
+  create-issue-setup-observability:
     if: ${{ failure() }}
     needs: [test-observability]
     runs-on: ubuntu-latest
@@ -111,7 +115,7 @@ jobs:
           
   create-issue-microservice-deployment:
     if: ${{ failure() }}
-    needs: [test-observability]
+    needs: [test-microservice-deployment]
     runs-on: ubuntu-latest
     steps:
       - name: Fail Microservice Deployment
