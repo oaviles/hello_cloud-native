@@ -1,6 +1,6 @@
 name: Orchestrator Workflow
 
-on: workflow_dispatch
+on: [workflow_dispatch, workflow_call]
 
 jobs:
   # ------- Main Orchestration  ---------------
@@ -8,7 +8,6 @@ jobs:
   deploy-aks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/deploy-aks.yml
   
@@ -27,7 +26,6 @@ jobs:
     if: ${{ success() }}
     needs: test-aks
     steps:
-      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/update-aks_with_acr.yml
         
@@ -46,7 +44,6 @@ jobs:
     if: ${{ success() }}
     needs: integration-test-acr
     steps:
-      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/enable-observability.yml
   
@@ -65,7 +62,6 @@ jobs:
     if: ${{ success() }}
     needs: test-observability
     steps:
-      - uses: actions/checkout@main
       - name: Deploy AKS (IaC)
         uses: ./.github/workflows/deploy-microservice.yml
         
