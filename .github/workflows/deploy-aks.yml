@@ -1,4 +1,4 @@
-#on: workflow_call
+#on: workflow_call  // https://docs.github.com/en/actions/using-workflows/reusing-workflows
 on: workflow_dispatch
 
 name: Deploy AKS
