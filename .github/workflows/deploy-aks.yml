@@ -1,4 +1,6 @@
-on: workflow_call
+#on: workflow_call
+on: workflow_dispatch
+
 name: Deploy AKS
 jobs:
   deploy-aks:
