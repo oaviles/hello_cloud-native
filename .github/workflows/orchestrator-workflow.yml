@@ -9,7 +9,7 @@ jobs:
   IaC:
     uses: ./.github/workflows/deploy-aks-v2.yml
     with:
-      rgName: ${{ secrets.AZURE_RG }}
+      rgName: IaC_Workshop
     secrets: 
       azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
       azureSubs: ${{ secrets.AZURE_SUBSCRIPTION }}
