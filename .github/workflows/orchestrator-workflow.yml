@@ -7,7 +7,12 @@ jobs:
   # ------- Main Orchestration  ---------------
   
   IaC:
-    uses: ./.github/workflows/deploy-aks.yml
+    uses: ./.github/workflows/deploy-aks-v2.yml
+    with:
+      rgName: ${{ secrets.AZURE_RG }}
+    secrets: 
+      azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+      azureSubs: ${{ secrets.AZURE_SUBSCRIPTION }}
   
   test-aks:
     runs-on: ubuntu-latest
