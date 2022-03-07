@@ -1,0 +1,37 @@
+name: Deploy AKS V2
+# https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+on:
+  workflow_call:
+    inputs:
+      rgName:
+        required: true
+        type: string
+    secrets:
+      azureCredentials:
+        required: true
+      azureSubs:
+        required: true
+
+jobs:
+  deploy-aks:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checkout code
+    - uses: actions/checkout@main
+
+      # Log into Azure
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.azureCredentials }}
+
+      # Deploy ARM template
+    - name: Deploy AKS
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.azureSubs }}
+        resourceGroupName: ${{ inputs.rgName }}
+        template: ./IaC/azuredeploy.json
+        # parameters: storageAccounts_name=oamx
+        parameters: ./IaC/azuredeploy.parameters.json
