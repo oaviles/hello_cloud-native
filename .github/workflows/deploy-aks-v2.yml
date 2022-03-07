@@ -39,4 +39,4 @@ jobs:
         resourceGroupName: ${{ secrets.rgName }}
         template: ${{ inputs.templateLocation }}
         parameters: ${{ inputs.parametersLocation }}
-        deploymentName: GitHub-Action-Deployment-${GITHUB_SHA::6}
+        deploymentName: GitHub-Action-Deployment
