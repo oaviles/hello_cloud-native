@@ -4,13 +4,18 @@ name: Deploy AKS V2
 on:
   workflow_call:
     inputs:
-      rgName:
+      templateLocation:
+        required: true
+        type: string
+      parametersLocation:
         required: true
         type: string
     secrets:
       azureCredentials:
         required: true
       azureSubs:
+        required: true
+      rgName:
         required: true
 
 jobs:
@@ -31,7 +36,6 @@ jobs:
       uses: azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.azureSubs }}
-        resourceGroupName: ${{ inputs.rgName }}
-        template: ./IaC/azuredeploy.json
-        # parameters: storageAccounts_name=oamx
-        parameters: ./IaC/azuredeploy.parameters.json
+        resourceGroupName: ${{ secrets.rgName }}
+        template: ./IaC/${{ inputs.templateLocation }}
+        parameters: ./IaC/${{ inputs.parametersLocation }}
