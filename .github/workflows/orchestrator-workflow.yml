@@ -20,12 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ success() }}
     needs: IaC
-    steps:
- #   - name: Azure Login
- #     uses: azure/login@v1
- #     with:
- #       creds:  ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
-    
+    steps:   
     - name: Azure CLI script
       uses: azure/CLI@v1
       with:
