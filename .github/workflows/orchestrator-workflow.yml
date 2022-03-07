@@ -9,8 +9,10 @@ jobs:
   IaC:
     uses: ./.github/workflows/deploy-aks-v2.yml
     with:
-      rgName: IaC_Workshop
+      templateLocation: ./IaC/azuredeploy.json
+      parametersLocation: ./IaC/azuredeploy.parameters.json
     secrets: 
+      rgName: ${{ secrets.AZURE_RG }}
       azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
       azureSubs: ${{ secrets.AZURE_SUBSCRIPTION }}
   
