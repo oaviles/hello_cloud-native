@@ -31,6 +31,7 @@ jobs:
       with:
         azcliversion: 2.16.0
         inlineScript: |
+           az login --service-principal -u ${{ secrets.CLIENTID }} -p ${{ secrets.CLIENTSECRET }} --tenant ${{ secrets.TENANTID }}
            az aks get-credentials --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }}
     
   
