@@ -37,5 +37,5 @@ jobs:
       with:
         subscriptionId: ${{ secrets.azureSubs }}
         resourceGroupName: ${{ secrets.rgName }}
-        template: .${{ inputs.templateLocation }}
+        template: ${{ inputs.templateLocation }}
         parameters: ${{ inputs.parametersLocation }}
