@@ -21,10 +21,28 @@ jobs:
     if: ${{ success() }}
     needs: IaC
     steps:
-      - name: Test AKS
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Azure CLI script
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.16.0
+        inlineScript: |
+           az aks get credentials --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }}
+    
+  
+  demo-environment-ready:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: test-aks
+    steps:
+      - name: Demo Environment Ready
         uses: oaviles/javascript_action@v1.1
         with:
-          message: 'Test AKS'
+          message: 'Demo Environment Ready'
   
           
   # ------ Main Orchestration End ---------
@@ -33,12 +51,23 @@ jobs:
   
   create-issue-aks-iac:
     if: ${{ failure() }}
-    needs: [test-aks]
+    needs: [IaC]
     runs-on: ubuntu-latest
     steps:
       - name: Fail AKS Provisioning
         uses: oaviles/javascript_action@v1.1
         with:
           message: 'Fail AKS Provisioning'
+          
+  create-issue-aks-validation:
+    if: ${{ failure() }}
+    needs: test-aks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test AKS
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Test AKS'
+  
                     
    # ------- Issue Orchestration End ----------
