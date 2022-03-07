@@ -1,7 +1,6 @@
-#on: workflow_call  // https://docs.github.com/en/actions/using-workflows/reusing-workflows
 on: workflow_dispatch
 
-name: Deploy AKS
+name: Deploy AKS V1
 jobs:
   deploy-aks:
     runs-on: ubuntu-latest
