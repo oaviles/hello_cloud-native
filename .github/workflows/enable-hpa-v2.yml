@@ -1,0 +1,37 @@
+name: Enable HPA on API V2
+
+on:
+  workflow_call:
+    inputs:
+      ymlLocation:
+        required: true
+        type: string
+      parametersNamespace:
+        required: true
+        type: string
+    secrets:
+      azureCredentials:
+        required: true
+      clusterName:
+        required: true
+      rgName:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+      
+    # Set the target AKS cluster.
+    - uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.azureCredentials }}'
+        cluster-name: ${{ secrets.clusterName }}
+        resource-group: ${{ secrets.rgName }}
+
+    - uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: '${{ inputs.parametersNamespace }}'
+        manifests: |
+          ${{ inputs.ymlLocation }}
