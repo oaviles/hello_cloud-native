@@ -40,6 +40,8 @@ jobs:
   
   
   Deploy-Microservice:
+    if: ${{ success() }}
+    needs: Config-ACR-and-AKS
     uses: ./.github/workflows/deploy-microservice-v2.yml
     with:
       parametersNamespace: api
@@ -48,11 +50,23 @@ jobs:
       rgName: ${{ secrets.AZURE_RG }}
       azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
       clusterName: ${{ secrets.CLUSTER_NAME }}
+      
+  Enable-HPA:
+    if: ${{ success() }}
+    needs: Deploy-Microservice
+    uses: ./.github/workflows/enable-hpa-v2.yml
+    with:
+      parametersNamespace: api
+      ymlLocation: yaml_files/hpa-api.yaml
+    secrets: 
+      rgName: ${{ secrets.AZURE_RG }}
+      azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+      clusterName: ${{ secrets.CLUSTER_NAME }}
   
   Demo-Environment-Ready:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: Deploy-Microservice
+    needs: Enable-HPA
     steps:
       - name: Demo Environment Ready
         uses: oaviles/javascript_action@v1.1
