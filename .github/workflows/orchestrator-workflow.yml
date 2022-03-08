@@ -39,10 +39,20 @@ jobs:
       acrName: ${{ secrets.ACR_NAME }}
   
   
+  Deploy-Microservice:
+    uses: ./.github/workflows/deploy-microservice-v2.yml
+    with:
+      parametersNamespace: api
+      ymlLocation: yaml_files/deploy-microservice.yaml
+    secrets: 
+      rgName: ${{ secrets.AZURE_RG }}
+      azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+      clusterName: ${{ secrets.CLUSTER_NAME }}
+  
   Demo-Environment-Ready:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: Config-ACR-and-AKS
+    needs: Deploy-Microservice
     steps:
       - name: Demo Environment Ready
         uses: oaviles/javascript_action@v1.1
@@ -79,10 +89,20 @@ jobs:
     needs: Test-AKS
     runs-on: ubuntu-latest
     steps:
-      - name: Test AKS
+      - name: ACR Validation
         uses: oaviles/javascript_action@v1.1
         with:
-          message: 'Test AKS'
+          message: 'ACR Validation'
+          
+  Create-Issue-Deploy-Microservice:
+    if: ${{ failure() }}
+    needs: Deploy-Microservice
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Microservice
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Deploy Microservice'
   
                     
    # ------- Issue Orchestration End ----------
