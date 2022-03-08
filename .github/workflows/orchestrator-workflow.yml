@@ -1,4 +1,4 @@
-name: Orchestrator Workflow (Deploy AKS)
+name: Orchestrator_Workflow_Deploy-AKS
 
 on: workflow_dispatch
 
