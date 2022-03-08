@@ -1,0 +1,29 @@
+name: Udpate AKS with ACR V2
+
+on:
+  workflow_call:
+    secrets:
+      azureCredentials:
+        required: true
+      clusterName:
+        required: true
+      acrName:
+        required: true
+
+jobs:
+  update-aks:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@main
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.azureCredentials }}
+    
+    - name: Udpate AKS with ACR
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az aks update -g ${{ secrets.rgName }} -n ${{ secrets.clusterName }} --attach-acr ${{ secrets.acrName }}
