@@ -1,5 +1,5 @@
 on: workflow_dispatch
-name: Udpate AKS with ACR
+name: Udpate AKS with ACR V1
 jobs:
   update-aks:
     runs-on: ubuntu-latest
