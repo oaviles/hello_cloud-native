@@ -9,6 +9,8 @@ on:
         required: true
       acrName:
         required: true
+      rgName:
+        required: true
 
 jobs:
   update-aks:
