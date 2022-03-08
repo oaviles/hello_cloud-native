@@ -100,7 +100,7 @@ jobs:
           
   Create-Issue-ACR-Validation:
     if: ${{ failure() }}
-    needs: Test-AKS
+    needs: Config-ACR-and-AKS
     runs-on: ubuntu-latest
     steps:
       - name: ACR Validation
