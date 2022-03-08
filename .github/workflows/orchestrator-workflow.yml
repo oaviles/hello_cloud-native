@@ -37,6 +37,7 @@ jobs:
       clusterName: ${{ secrets.CLUSTER_NAME }}
       azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
       acrName: ${{ secrets.ACR_NAME }}
+      rgName: ${{ secrets.AZURE_RG }}
   
   
   Deploy-Microservice:
