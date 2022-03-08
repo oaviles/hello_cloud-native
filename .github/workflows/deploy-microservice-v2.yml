@@ -33,6 +33,6 @@ jobs:
 
     - uses: Azure/k8s-deploy@v1.4
       with:
-        namespace: '${{ secrets.parametersNamespace }}'
+        namespace: '${{ inputs.parametersNamespace }}'
         manifests: |
-          ${{ secrets.ymlLocation }}
+          ${{ inputs.ymlLocation }}
