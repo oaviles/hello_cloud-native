@@ -16,7 +16,7 @@ jobs:
       azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
       azureSubs: ${{ secrets.AZURE_SUBSCRIPTION }}
   
-  test-aks:
+  Test-AKS:
     runs-on: ubuntu-latest
     if: ${{ success() }}
     needs: IaC
@@ -29,11 +29,20 @@ jobs:
            az login --service-principal -u ${{ secrets.CLIENTID }} -p ${{ secrets.CLIENTSECRET }} --tenant ${{ secrets.TENANTID }}
            az aks get-credentials --name ${{ secrets.CLUSTER_NAME }} --resource-group ${{ secrets.AZURE_RG }}
     
+  Config-ACR-and-AKS:
+    if: ${{ success() }}
+    needs: Test-AKS
+    uses: ./.github/workflows/update-aks_with_acr-v2.yml
+    secrets: 
+      clusterName: ${{ secrets.CLUSTER_NAME }}
+      azureCredentials: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+      acrName: ${{ secrets.ACR_NAME }}
   
-  demo-environment-ready:
+  
+  Demo-Environment-Ready:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: test-aks
+    needs: Config-ACR-and-AKS
     steps:
       - name: Demo Environment Ready
         uses: oaviles/javascript_action@v1.1
@@ -45,7 +54,7 @@ jobs:
   
   # ------- Issue Orchestration ----------
   
-  create-issue-aks-iac:
+  Create-Issue-AKS-IaC:
     if: ${{ failure() }}
     needs: [IaC]
     runs-on: ubuntu-latest
@@ -55,9 +64,19 @@ jobs:
         with:
           message: 'Fail AKS Provisioning'
           
-  create-issue-aks-validation:
+  Create-Issue-AKS-Validation:
     if: ${{ failure() }}
-    needs: test-aks
+    needs: Test-AKS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test AKS
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Test AKS'
+          
+  Create-Issue-ACR-Validation:
+    if: ${{ failure() }}
+    needs: Test-AKS
     runs-on: ubuntu-latest
     steps:
       - name: Test AKS
