@@ -117,6 +117,16 @@ jobs:
         uses: oaviles/javascript_action@v1.1
         with:
           message: 'Deploy Microservice'
+          
+  Create-Issue-Enable-HPA:
+    if: ${{ failure() }}
+    needs: Enable-HPA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable HPA
+        uses: oaviles/javascript_action@v1.1
+        with:
+          message: 'Enable HPA'
   
                     
    # ------- Issue Orchestration End ----------
