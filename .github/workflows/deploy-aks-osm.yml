@@ -16,5 +16,5 @@ jobs:
       uses: Azure/cli@v1
       with:
         inlineScript: |
-          az aks create -n ${{ secrets.CLUSTER_NAME }} -g ${{ secrets.AZURE_RG }} --enable-addons open-service-mesh --attach-acr ${{ secrets.ACR_NAME }} --yes
+          az aks create -n ${{ secrets.CLUSTER_NAME }} -g ${{ secrets.AZURE_RG }} --enable-addons open-service-mesh --generate-ssh-keys --attach-acr ${{ secrets.ACR_NAME }} --yes
           az aks nodepool update --enable-cluster-autoscaler --min-count 3 --max-count 10 -g ${{ secrets.AZURE_RG }} -n nodepool1 --cluster-name ${{ secrets.CLUSTER_NAME }}
