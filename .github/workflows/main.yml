@@ -1,0 +1,129 @@
+name: 0 Deploy QA Env
+
+on:
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  create-resource-group:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Azure RG
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az group create --location ${{ secrets.AZURE_REGION }} --name ${{ secrets.AZURE_RG }}
+          
+  create-acr:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: create-resource-group
+    steps:
+    - uses: actions/checkout@main
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Create ACR
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.ACR }} --sku Basic        
+
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    environment:
+      name: ACR
+    if: ${{ success() }}
+    needs: [create-acr,create-resource-group]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Buid and Push Image
+        run: echo Buid and Push Image
+
+  deploy-aks:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: [create-resource-group]
+    steps:
+    - uses: actions/checkout@main
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy AKS
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ./IaC/azuredeploy.json
+        parameters: ./IaC/azuredeploy-parameters.json
+        
+        
+  update-aks:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: [create-acr,deploy-aks]
+    steps:
+    - uses: actions/checkout@main
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Udpate AKS with ACR
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az aks update -g ${{ secrets.AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR_NAME }}
+          
+          
+  enable-observability:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: [update-aks]
+    steps:
+    - uses: actions/checkout@main
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Enable Observability
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az resource create --resource-type Microsoft.OperationalInsights/workspaces --name ${{ secrets.WORKSPACE_NAME }} --resource-group ${{ secrets.AZURE_RG }} --location ${{ secrets.AZURE_REGION }} --properties '{}' -o table
+          WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.WORKSPACE_NAME }} --query "id" -o tsv)
+          echo $WORKSPACE_ID
+          az aks enable-addons --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.CLUSTER_NAME }} --addons monitoring --workspace-resource-id $WORKSPACE_ID
+
+
+  deploy-microservice:
+    runs-on: ubuntu-latest
+    environment:
+      name: PoC
+    if: ${{ success() }}
+    needs: [enable-observability]
+    steps:
+    - uses: actions/checkout@master
+    - uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ secrets.CLUSTER_NAME }}
+        resource-group: ${{ secrets.AZURE_RG }}
+
+    - uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: 'api'
+        manifests: |
+          yaml_files/deploy-microservice.yaml
+          yaml_files/hpa-api.yaml
