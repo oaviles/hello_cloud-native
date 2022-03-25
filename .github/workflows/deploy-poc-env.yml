@@ -65,7 +65,7 @@ jobs:
         subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
         resourceGroupName: ${{ secrets.AZURE_RG }}
         template: ./IaC/azuredeploy.json
-        parameters: ./IaC/azuredeploy-parameters.json
+        parameters: ./IaC/azuredeploy.parameters.json
         
         
   update-aks:
