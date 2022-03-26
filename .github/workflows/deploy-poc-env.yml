@@ -135,7 +135,7 @@ jobs:
     needs: [deploy-microservice]
     steps:
       - name: create-issue
-        uses: oaviles/issue-action@v1
+        uses: oaviles/issue_action@v1
         with:
           issue-title: "Deployment Failure: PoC Env"
           issue-body: "Validate orchestration workflow"
