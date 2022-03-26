@@ -137,7 +137,7 @@ jobs:
       - name: create-issue
         uses: oaviles/issue_action@v1
         with:
-          issue-title: "Deployment Failure: PoC Env"
+          issue-title: "Deployment Failure: PoC Env - ${{ github.sha }}"
           issue-body: "Validate orchestration workflow"
           repo-token: ${{secrets.GITHUB_TOKEN}}       
           
