@@ -1,0 +1,25 @@
+on: workflow_dispatch
+name: Deploy AKS with Ingress Controller V2
+jobs:
+  deploy-cluster:
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@main
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+    
+    - name: Deploy AKS with Ingress Controller
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az aks create -n ${{ secrets.CLUSTER_NAME }} -g ${{ secrets.AZURE_RG }} --network-plugin azure --enable-managed-identity --generate-ssh-keys --attach-acr ${{ secrets.ACR_NAME }} --yes
+          az aks nodepool update --enable-cluster-autoscaler --min-count 3 --max-count 10 -g ${{ secrets.AZURE_RG }} -n nodepool1 --cluster-name ${{ secrets.CLUSTER_NAME }}
+          az network public-ip create -n myPublicIp -g ${{ secrets.AZURE_RG }} --allocation-method Static --sku Standard
+          az network vnet create -n myVnet -g ${{ secrets.AZURE_RG }} --address-prefix 11.0.0.0/8 --subnet-name mySubnet --subnet-prefix 11.1.0.0/16 
+          az network application-gateway create -n AKSAGIngressController -l eastus -g ${{ secrets.AZURE_RG }} --sku Standard_v2 --public-ip-address myPublicIp --vnet-name myVnet --subnet mySubnet
+
+
