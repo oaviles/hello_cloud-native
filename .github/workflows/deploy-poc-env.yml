@@ -13,7 +13,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets.AZURE_CREDENTIALS1 }}
 
     - name: Create Azure RG
       uses: azure/CLI@v1
