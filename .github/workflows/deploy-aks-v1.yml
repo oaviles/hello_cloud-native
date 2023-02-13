@@ -12,7 +12,7 @@ jobs:
       # Log into Azure
     - uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_SUPER_SP }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Deploy ARM template
     - name: Deploy AKS
