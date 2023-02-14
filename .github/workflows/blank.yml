@@ -22,3 +22,4 @@ jobs:
       with:
         inlineScript: |
           az group create --location ${{ secrets.AZURE_REGION }} --name ${{ secrets.AZURE_RG }}
+    
