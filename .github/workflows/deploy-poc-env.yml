@@ -5,7 +5,7 @@ on:
   
 env:
   image_name: oapi
-  tag: 7999
+  tag: latest
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -57,7 +57,7 @@ jobs:
       uses: Azure/cli@v1
       with:
         inlineScript: |
-          az acr build -t ${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR }} .
+          az acr build -t ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR_NAME }} .
   
   deploy-aks:
     runs-on: ubuntu-latest
