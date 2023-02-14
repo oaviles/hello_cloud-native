@@ -2,6 +2,10 @@ name: 0 Deploy QA Env
 
 on:
   workflow_dispatch:
+  
+env:
+  image_name: oapi
+  tag: latest
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -42,12 +46,15 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ACR
+      
     if: ${{ success() }}
     needs: [create-acr,create-resource-group]
     steps:
-      - uses: actions/checkout@v2
-      - name: Buid and Push Image
-        run: echo Buid and Push Image
+       - name: Build and Push Image
+         uses: Azure/cli@v1
+         with:
+           inlineScript: |
+             az acr build -t ${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR }} .
 
   deploy-aks:
     runs-on: ubuntu-latest
@@ -83,7 +90,7 @@ jobs:
       uses: Azure/cli@v1
       with:
         inlineScript: |
-          az aks update -g ${{ secrets.AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR_NAME }}
+          az aks update -g ${{ secrets.AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR }}
           
           
   enable-observability:
@@ -120,14 +127,15 @@ jobs:
         creds: '${{ secrets.AZURE_CREDENTIALS }}'
         cluster-name: ${{ secrets.CLUSTER_NAME }}
         resource-group: ${{ secrets.AZURE_RG }}
-
-    - uses: Azure/k8s-deploy@v1.4
+    
+    - uses: azure/setup-kubectl@v3
+    
+    - uses: Azure/cli@v1
       with:
-        namespace: 'api'
-        manifests: |
-          yaml_files/deploy-microservice.yaml
-          yaml_files/hpa-api.yaml
-          
+        inlineScript: |
+          kubectl crete ns api
+          kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
+          kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
           
   create-issue:
     runs-on: ubuntu-latest
