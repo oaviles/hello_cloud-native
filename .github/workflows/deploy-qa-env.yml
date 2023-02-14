@@ -45,17 +45,18 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     environment:
-      name: ACR
-      
+      name: ACR  
     if: ${{ success() }}
     needs: [create-acr,create-resource-group]
     steps:
-       - name: Build and Push Image
+  
        - uses: azure/login@v1
+       - name: Azure Login
          with:
            creds: ${{ secrets.AZURE_CREDENTIALS }}
            
        - uses: Azure/cli@v1
+       - name: Build and Push Image
          with:
            inlineScript: |
              az acr build -t ${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR }} .
