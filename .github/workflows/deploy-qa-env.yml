@@ -83,7 +83,7 @@ jobs:
   update-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: [create-acr,deploy-aks]
+    needs: [create-acr,enable-observability]
     steps:
     - name: Azure Login
       uses: azure/login@v1
@@ -100,7 +100,7 @@ jobs:
   enable-observability:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: [update-aks]
+    needs: [deploy-aks]
     steps:
     - name: Azure Login
       uses: azure/login@v1
