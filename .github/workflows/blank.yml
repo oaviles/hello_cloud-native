@@ -7,7 +7,7 @@ env:
   tag: latest
 
 jobs:
-  build:
+  deploy-microservice:
     runs-on: ubuntu-latest
 
     steps:
