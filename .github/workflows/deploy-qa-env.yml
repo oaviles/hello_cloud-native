@@ -30,17 +30,17 @@ jobs:
     if: ${{ success() }}
     needs: create-resource-group
     steps:
-    - uses: actions/checkout@main
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
     
-    - name: Create ACR
-      uses: Azure/cli@v1
-      with:
-        inlineScript: |
-          az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.ACR }} --sku Basic        
+      - uses: actions/checkout@main
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Create ACR
+        uses: Azure/cli@v1
+        with:
+          inlineScript: |
+            az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.ACR }} --sku Basic        
 
   build-and-push-image:
     runs-on: ubuntu-latest
