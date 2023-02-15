@@ -35,8 +35,7 @@ jobs:
           az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
           
           echo "Install kubectl"
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          apt-get install -y kubectl
           kubectl version
           
           echo "Setup HPA"
