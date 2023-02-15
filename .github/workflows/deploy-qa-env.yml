@@ -50,13 +50,13 @@ jobs:
     needs: [create-acr,create-resource-group]
     steps:
   
-       - uses: azure/login@v1
        - name: Azure Login
+         uses: azure/login@v1
          with:
            creds: ${{ secrets.AZURE_CREDENTIALS }}
            
-       - uses: Azure/cli@v1
        - name: Build and Push Image
+         uses: Azure/cli@v1
          with:
            inlineScript: |
              az acr build -t ${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR }} .
