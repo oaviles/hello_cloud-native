@@ -31,7 +31,6 @@ jobs:
     needs: create-resource-group
     steps:
     
-      - uses: actions/checkout@main
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -50,6 +49,7 @@ jobs:
     needs: [create-acr,create-resource-group]
     steps:
   
+       - uses: actions/checkout@main
        - name: Azure Login
          uses: azure/login@v1
          with:
@@ -85,7 +85,6 @@ jobs:
     if: ${{ success() }}
     needs: [create-acr,deploy-aks]
     steps:
-    - uses: actions/checkout@main
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -103,7 +102,6 @@ jobs:
     if: ${{ success() }}
     needs: [update-aks]
     steps:
-    - uses: actions/checkout@main
     - name: Azure Login
       uses: azure/login@v1
       with:
@@ -126,7 +124,6 @@ jobs:
     if: ${{ success() }}
     needs: [enable-observability]
     steps:
-    - uses: actions/checkout@master
     - uses: Azure/aks-set-context@v1
       with:
         creds: '${{ secrets.AZURE_CREDENTIALS }}'
