@@ -1,0 +1,39 @@
+# This is a basic workflow to help you get started with Actions
+
+name: 1 Testing
+
+# Controls when the workflow will run
+on:  workflow_dispatch
+
+env:
+  image_name: oapi
+  tag: latest
+  CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+  RESOURCE_GROUP: ${{ secrets.AZURE_RG }} 
+  acr_name: ${{ secrets.ACR_NAME }} 
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+   deploy-microservice:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ secrets.CLUSTER_NAME }}
+        resource-group: ${{ secrets.AZURE_RG }}
+    
+    - name: Kubectl tool installer
+      uses: Azure/setup-kubectl@v3
+      with:
+        version: latest
+    
+    - uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          kubectl crete ns api
+          kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
+          kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
+
