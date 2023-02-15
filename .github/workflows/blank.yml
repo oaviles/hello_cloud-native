@@ -26,16 +26,24 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          
+        
+          echo "Get Cluster Credentials"
           az aks get-credentials --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
-          az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl get no"
-          az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl crete ns api"
+          
+          echo "Deploy Microservice"          
+          az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl create ns api"
           az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
           
+          echo "Install kubectl"
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          kubectl version
           
-         # kubectl crete ns api
-         # kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
-         # kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
+          echo "Setup HPA"
+          kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
           
+          echo "Expose Microservice"
+          kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
           
-      
+          echo "Get Service"
+          az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl get service -n api"
