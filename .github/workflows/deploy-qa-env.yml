@@ -46,7 +46,7 @@ jobs:
     environment:
       name: ACR  
     if: ${{ success() }}
-    needs: [enable-observability]
+    needs: [enable-observability,create-acr]
     steps:
   
        - uses: actions/checkout@main
@@ -122,7 +122,7 @@ jobs:
     environment:
       name: PoC
     if: ${{ success() }}
-    needs: [update-aks]
+    needs: [update-aks,build-and-push-image]
     steps:
     - uses: Azure/aks-set-context@v1
       with:
