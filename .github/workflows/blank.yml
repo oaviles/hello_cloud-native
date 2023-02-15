@@ -5,6 +5,10 @@ on:  workflow_dispatch
 env:
   image_name: oapi
   tag: latest
+  CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+  RESOURCE_GROUP: ${{ secrets.AZURE_RG }} 
+  acr_name: ${{ secrets.ACR_NAME }} 
+  
 
 jobs:
   deploy-microservice:
@@ -23,9 +27,9 @@ jobs:
       - name: Run a multi-line script
         run: |
           
-          az aks get-credentials --name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }}
-          az aks command invoke --name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl crete ns api"
-         # az aks command invoke --name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
+          az aks get-credentials --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
+          az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl crete ns api"
+         # az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
           
           
          # kubectl crete ns api
