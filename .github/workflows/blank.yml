@@ -21,7 +21,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           
-      
+      - name: Kubectl tool installer
+        uses: Azure/setup-kubectl@v3
+        with:
+          version: latest
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
@@ -33,10 +36,6 @@ jobs:
           echo "Deploy Microservice"          
           az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl create ns api"
           az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
-          
-          echo "Install kubectl"
-          apt-get install -y kubectl
-          kubectl version
           
           echo "Setup HPA"
           kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
