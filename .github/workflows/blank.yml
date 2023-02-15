@@ -24,8 +24,8 @@ jobs:
         run: |
           
           az aks get-credentials --name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }}
-          az aks command invoke -name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl crete ns api"
-          az aks command invoke -name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
+          az aks command invoke --name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl crete ns api"
+         # az aks command invoke --name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
           
           
          # kubectl crete ns api
