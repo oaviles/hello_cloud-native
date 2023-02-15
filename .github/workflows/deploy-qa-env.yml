@@ -139,7 +139,7 @@ jobs:
       run: |
           kubectl create ns api
           kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
-          kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
+          kubectl autoscale deployment api --cpu-percent=30 --min=3 --max=100 -n api
           kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
           
   create-issue:
