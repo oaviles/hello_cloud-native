@@ -43,5 +43,3 @@ jobs:
           echo "Expose Microservice"
           kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
           
-          echo "Get Service"
-          az aks command invoke --name ${{ env.CLUSTER_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --command "kubectl get service -n api"
