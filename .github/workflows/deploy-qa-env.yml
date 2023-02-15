@@ -46,7 +46,7 @@ jobs:
     environment:
       name: ACR  
     if: ${{ success() }}
-    needs: [create-acr,create-resource-group]
+    needs: [enable-observability]
     steps:
   
        - uses: actions/checkout@main
