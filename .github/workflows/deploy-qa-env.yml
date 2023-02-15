@@ -5,9 +5,9 @@ on:
   
 env:
   image_name: oapi
-  tag: latest
+  tag: latest 
+  acr_name: ${{ secrets.ACR_NAME }} 
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   create-resource-group:
@@ -130,14 +130,17 @@ jobs:
         cluster-name: ${{ secrets.CLUSTER_NAME }}
         resource-group: ${{ secrets.AZURE_RG }}
     
-    - uses: azure/setup-kubectl@v3
-    
-    - uses: Azure/cli@v1
+    - name: Kubectl tool installer
+      uses: Azure/setup-kubectl@v3
       with:
-        inlineScript: |
-          kubectl crete ns api
-          kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
+        version: latest
+    
+    - name: Deploy Microservice
+      run: |
+          kubectl create ns api
+          kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
           kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
+          kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
           
   create-issue:
     runs-on: ubuntu-latest
