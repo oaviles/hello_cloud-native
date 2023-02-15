@@ -6,7 +6,7 @@ on:
 env:
   image_name: oapi
   tag: latest 
-  acr_name: ${{ secrets.ACR_NAME }} 
+  acr_name: ${{ secrets.ACR }} 
 
 jobs:
   # This workflow contains a single job called "build"
