@@ -1,0 +1,36 @@
+name: 0 Testing
+
+on:  workflow_dispatch
+
+env:
+  image_name: oapi
+  tag: latest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          
+          az aks get-credentials --name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }}
+          az aks command invoke -name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl crete ns api"
+          az aks command invoke -name {{ secrets.CLUSTER_NAME }} --resource-group {{ secrets.AZURE_RG }} --command "kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api"
+          
+          
+         # kubectl crete ns api
+         # kubectl create deploy api --image=${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
+         # kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n api
+          
+          
+      
