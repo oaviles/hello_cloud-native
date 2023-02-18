@@ -1,0 +1,70 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  IMAGE_NAME: oapi
+  TAG_NAME: 7999
+  NAMESPACE: api
+
+steps:
+
+- task: AzureCLI@2
+  displayName: 'AKS Get Credentials'
+  inputs:
+    azureSubscription: 'Azure_MCAPS_SC'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az aks get-credentials -n $(CLUSTER_NAME) -g $(AZURE_RG)'
+
+- task: AzureCLI@2
+  displayName: 'Validate Cluster Access'
+  inputs:
+    azureSubscription: 'Azure_MCAPS_SC'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript:  'az aks command invoke --name $(CLUSTER_NAME) --resource-group $(AZURE_RG) --command "kubectl get no"'
+
+- task: KubectlInstaller@0
+  displayName: 'Install kubectl'
+  inputs:
+    kubectlVersion: 'latest'
+
+- task: Bash@3
+  displayName: 'Deploy Microservice'
+  inputs:
+    targetType: 'inline'
+    script: |
+      kubectl delete ns api
+      kubectl create ns api
+      kubectl create -f yaml_files/deploy-api.yaml -n $(NAMESPACE)
+      # kubectl create deploy api --image=$(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(TAG_NAME) -n $(NAMESPACE)
+      kubectl autoscale deployment api --cpu-percent=30 --min=4 --max=100 -n $(NAMESPACE)
+
+#- task: Bash@3
+#  displayName: 'Expose Microservice'
+#  inputs:
+#    targetType: 'inline'
+#    script: |
+#      kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=$(TAG_NAME) -n $(NAMESPACE)
+
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'Azure Resource Manager'
+    azureSubscriptionEndpoint: 'Your_Azure_Connection'
+    azureResourceGroup: 'Your_Azure_Resource_Group'
+    kubernetesCluster: 'Your_AKS_Name'
+    namespace: $(NAMESPACE)
+    command: 'expose'
+    arguments: 'deployment api --type LoadBalancer --name api --port 80 --target-port $(TAG_NAME)'
+    # secretType: 'dockerRegistry'
+    # containerRegistryType: 'Azure Container Registry'
+
+
+
