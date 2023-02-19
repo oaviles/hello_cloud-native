@@ -1,0 +1,57 @@
+# Reference to get access: https://learn.microsoft.com/en-us/azure/aks/command-invoke
+
+trigger: none
+
+pool:
+ name: Your_Self-Hosted_Agent 
+
+#pool:
+    #vmImage: ubuntu-latest
+
+steps:
+
+- task: AzureCLI@2
+  displayName: 'AKS Get Credentials'
+  inputs:
+    azureSubscription: 'Your_Azure_Subscription'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az aks get-credentials -n $(CLUSTER_NAME) -g $(AZURE_RG)'
+
+- task: AzureCLI@2
+  displayName: 'Validate Cluster Access'
+  inputs:
+    azureSubscription: 'Your_Azure_Subscription'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript:  'az aks command invoke --name $(CLUSTER_NAME) --resource-group $(AZURE_RG) --command "kubectl get no"'
+
+- task: AzureCLI@2
+  displayName: 'Delete Namesapce'
+  inputs:
+    azureSubscription: 'Your_Azure_Subscription'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript:  'az aks command invoke --name $(CLUSTER_NAME) --resource-group $(AZURE_RG) --command "kubectl delete ns api"'
+
+- task: KubectlInstaller@0
+  displayName: 'Install kubectl'
+  condition: succeededOrFailed()
+  inputs:
+    kubectlVersion: 'latest'
+
+- task: Bash@3
+  displayName: 'Deploy Microservice (kubectl)'
+  inputs:
+    targetType: 'inline'
+    script: |
+      kubectl apply -f /yaml_files/deploy-microservice.yaml
+
+- task: AzureCLI@2
+  displayName: 'Deploy Microservice (az aks command invoke)'
+  condition: succeededOrFailed()
+  inputs:
+    azureSubscription: 'Your_Azure_Subscription'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript:  'az aks command invoke --name $(CLUSTER_NAME) --resource-group $(AZURE_RG) --command "kubectl apply -f https://raw.githubusercontent.com/oaviles/hello_cloud-native/master/yaml_files/deploy-microservice.yaml"'
