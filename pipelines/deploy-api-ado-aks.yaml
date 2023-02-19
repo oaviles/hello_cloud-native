@@ -18,7 +18,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'AKS Get Credentials'
   inputs:
-    azureSubscription: 'Azure_MCAPS_SC'
+    azureSubscription: 'Your_Azure_Subscription'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: 'az aks get-credentials -n $(CLUSTER_NAME) -g $(AZURE_RG)'
@@ -26,7 +26,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Validate Cluster Access'
   inputs:
-    azureSubscription: 'Azure_MCAPS_SC'
+    azureSubscription: 'Your_Azure_Subscription'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript:  'az aks command invoke --name $(CLUSTER_NAME) --resource-group $(AZURE_RG) --command "kubectl get no"'
