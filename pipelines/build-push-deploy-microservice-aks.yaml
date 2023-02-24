@@ -1,0 +1,119 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger: none
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'Your_Container-Registry_Service-Connection'
+  imageRepository: 'Your_Image'
+  containerRegistry: 'Your_Azure_Container_Registry'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+  port: 7999
+  NAMESPACE: api
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build_Microservice
+  displayName: Build and Push Image
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+- stage: Deploy_Microservice
+  displayName: Deploy Microservice
+  jobs:
+    - job: Deploy
+      displayName: Deploy
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: AzureCLI@2
+        displayName: 'AKS Get Credentials'
+        inputs:
+          azureSubscription: 'Your_Azure_Subscription'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: 'az aks get-credentials -n $(CLUSTER_NAME) -g $(AZURE_RG) --overwrite-existing'
+
+      - task: AzureCLI@2
+        displayName: 'Validate Cluster Access'
+        inputs:
+          azureSubscription: 'Your_Azure_Subscription'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript:  'az aks command invoke --name $(CLUSTER_NAME) --resource-group $(AZURE_RG) --command "kubectl delete ns api --force"'
+
+      - task: KubectlInstaller@0
+        displayName: 'Install kubectl'
+        inputs:
+          kubectlVersion: 'latest'
+
+      - task: replacetokens@5
+        displayName: 'Update YAML with Image Reference and Version'
+        inputs:
+          targetFiles: 'yaml_files/deploy-microservice.yaml'
+          encoding: 'auto'
+          tokenPattern: 'default'
+          writeBOM: true
+          actionOnMissing: 'warn'
+          keepToken: false
+          actionOnNoFiles: 'continue'
+          enableTransforms: false
+          enableRecursion: false
+          useLegacyPattern: false
+          enableTelemetry: true
+
+      - task: Bash@3
+        displayName: 'Deploy Microservice'
+        inputs:
+          targetType: 'inline'
+          script: |
+            kubectl create -f yaml_files/deploy-microservice.yaml -n $(NAMESPACE)
+            # kubectl create deploy api --image=$(containerRegistry).azurecr.io/$(imageRepository):$(tag) -n $(NAMESPACE)
+            kubectl autoscale deployment api --cpu-percent=30 --min=3 --max=100 -n $(NAMESPACE)
+
+      - script: cat yaml_files/deploy-microservice.yaml 
+        displayName: 'Check Tag Version in YAML file'
+
+      #- task: Bash@3
+      #  displayName: 'Expose Microservice'
+      #  inputs:
+      #    targetType: 'inline'
+      #    script: |
+      #      kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=$(TagVersion) -n $(NAMESPACE)
+
+      - task: Kubernetes@1
+        displayName: 'Expose Microservice'
+        inputs:
+          connectionType: 'Azure Resource Manager'
+          azureSubscriptionEndpoint: 'Your_Azure_Subscription'
+          azureResourceGroup: $(AZURE_RG)
+          kubernetesCluster: $(CLUSTER_NAME)
+          namespace: '$(NAMESPACE)'
+          command: 'expose'
+          arguments: 'deployment api --type LoadBalancer --name api --port 80 --target-port $(port)'
+          # secretType: 'dockerRegistry'
+          # containerRegistryType: 'Azure Container Registry'
+
+      
+
