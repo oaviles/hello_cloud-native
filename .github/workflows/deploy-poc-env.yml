@@ -1,4 +1,4 @@
-name: 0 Deploy PoC Env
+name: 0 Deploy PoC Env V1
 
 on:
   workflow_dispatch:
