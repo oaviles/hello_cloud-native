@@ -1,4 +1,4 @@
-name: 0 Deploy QA Env
+name: 0 Deploy PoC Env V2
 
 on:
   workflow_dispatch:
