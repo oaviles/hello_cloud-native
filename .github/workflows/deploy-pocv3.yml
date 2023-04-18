@@ -10,9 +10,7 @@ env:
   LOG_ANALYTICS: OALogs
 
 jobs:
-  # This workflow contains a single job called "build"
   create-resource-group:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
     - name: Azure Login
@@ -31,7 +29,6 @@ jobs:
     if: ${{ success() }}
     needs: create-resource-group
     steps:
-    
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -62,7 +59,6 @@ jobs:
            inlineScript: |
              az acr build -t ${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ env.acr_name }} .
              
-
   deploy-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
@@ -81,7 +77,6 @@ jobs:
              WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.LOG_ANALYTICS }} --query "id" -o tsv)
              az aks create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.CLUSTER_NAME }} --node-count 2 --enable-addons monitoring --workspace-resource-id  $WORKSPACE_ID --enable-cluster-autoscaler --min-count 2 --max-count 10 --attach-acr ${{ env.acr_name }} --generate-ssh-keys --yes
              
-
   deploy-microservice:
     runs-on: ubuntu-latest
     environment:
@@ -104,7 +99,7 @@ jobs:
       run: |
           kubectl create ns api
           kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
-           kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
+          kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
           kubectl autoscale deployment api --cpu-percent=30 --min=3 --max=100 -n api
           
   create-issue:
