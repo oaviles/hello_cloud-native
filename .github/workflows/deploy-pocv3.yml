@@ -5,8 +5,9 @@ on:
   
 env:
   image_name: oapi
-  tag: latest 
-  acr_name: ${{ secrets.ACR }} 
+  tag: ${{ github.run_number }} 
+  acr_name: oacr0${{ github.run_number }}
+  LOG_ANALYTICS: OALogs
 
 jobs:
   # This workflow contains a single job called "build"
@@ -39,14 +40,14 @@ jobs:
         uses: Azure/cli@v1
         with:
           inlineScript: |
-            az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.ACR }} --sku Basic        
+            az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ env.acr_name }} --sku Basic    
 
   build-and-push-image:
     runs-on: ubuntu-latest
     environment:
       name: ACR  
     if: ${{ success() }}
-    needs: [enable-observability,create-acr]
+    needs: [deploy-aks,create-acr]
     steps:
   
        - uses: actions/checkout@main
@@ -59,70 +60,34 @@ jobs:
          uses: Azure/cli@v1
          with:
            inlineScript: |
-             az acr build -t ${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR }} .
+             az acr build -t ${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ env.acr_name }} .
+             
 
   deploy-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: [create-resource-group]
+    needs: [create-acr]
     steps:
-    - uses: actions/checkout@main
-    - uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Deploy AKS
-      uses: azure/arm-deploy@v1
-      with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-        resourceGroupName: ${{ secrets.AZURE_RG }}
-        template: ./IaC/azuredeploy.json
-        parameters: ./IaC/azuredeploy.parameters.json
-        
-        
-  update-aks:
-    runs-on: ubuntu-latest
-    if: ${{ success() }}
-    needs: [create-acr,enable-observability]
-    steps:
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - name: Udpate AKS with ACR
-      uses: Azure/cli@v1
-      with:
-        inlineScript: |
-          az aks update -g ${{ secrets.AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR }}
-          
-          
-  enable-observability:
-    runs-on: ubuntu-latest
-    if: ${{ success() }}
-    needs: [deploy-aks]
-    steps:
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    
-    - name: Enable Observability
-      uses: Azure/cli@v1
-      with:
-        inlineScript: |
-          az resource create --resource-type Microsoft.OperationalInsights/workspaces --name ${{ secrets.WORKSPACE_NAME }} --resource-group ${{ secrets.AZURE_RG }} --location ${{ secrets.AZURE_REGION }} --properties '{}' -o table
-          WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.WORKSPACE_NAME }} --query "id" -o tsv)
-          echo $WORKSPACE_ID
-          az aks enable-addons --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.CLUSTER_NAME }} --addons monitoring --workspace-resource-id $WORKSPACE_ID
-
+     - uses: actions/checkout@main
+     - name: Azure Login
+       uses: azure/login@v1
+       with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+           
+       - name: Build and Push Image
+         uses: Azure/cli@v1
+         with:
+           inlineScript: |
+             WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.LOG_ANALYTICS }} --query "id" -o tsv)
+             az aks create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.CLUSTER_NAME }} --node-count 2 --enable-addons monitoring --workspace-resource-id  $WORKSPACE_ID --enable-cluster-autoscaler --min-count 2 --max-count 10 --attach-acr ${{ env.acr_name }} --generate-ssh-keys --yes
+             
 
   deploy-microservice:
     runs-on: ubuntu-latest
     environment:
       name: PoC
     if: ${{ success() }}
-    needs: [update-aks,build-and-push-image]
+    needs: [build-and-push-image]
     steps:
     - uses: Azure/aks-set-context@v1
       with:
@@ -139,8 +104,8 @@ jobs:
       run: |
           kubectl create ns api
           kubectl create deploy api --image=${{ env.acr_name }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -n api
+           kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
           kubectl autoscale deployment api --cpu-percent=30 --min=3 --max=100 -n api
-          kubectl expose deployment api --type=LoadBalancer --name=api --port=80 --target-port=7999 -n api
           
   create-issue:
     runs-on: ubuntu-latest
