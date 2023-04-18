@@ -33,6 +33,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
       - name: Create ACR
         uses: Azure/cli@v1
         with:
@@ -40,13 +41,10 @@ jobs:
             az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ env.acr_name }} --sku Basic    
 
   build-and-push-image:
-    runs-on: ubuntu-latest
-    environment:
-      name: ACR  
+    runs-on: ubuntu-latest 
     if: ${{ success() }}
     needs: [deploy-aks,create-acr]
     steps:
-  
        - uses: actions/checkout@main
        - name: Azure Login
          uses: azure/login@v1
@@ -64,23 +62,21 @@ jobs:
     if: ${{ success() }}
     needs: [create-acr]
     steps:
-     - uses: actions/checkout@main
-     - name: Azure Login
-       uses: azure/login@v1
-       with:
+      - uses: actions/checkout@main
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
            
-       - name: Build and Push Image
-         uses: Azure/cli@v1
-         with:
-           inlineScript: |
+      - name: Build and Push Image
+        uses: Azure/cli@v1
+        with:
+          inlineScript: |
              WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.LOG_ANALYTICS }} --query "id" -o tsv)
              az aks create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.CLUSTER_NAME }} --node-count 2 --enable-addons monitoring --workspace-resource-id  $WORKSPACE_ID --enable-cluster-autoscaler --min-count 2 --max-count 10 --attach-acr ${{ env.acr_name }} --generate-ssh-keys --yes
              
   deploy-microservice:
     runs-on: ubuntu-latest
-    environment:
-      name: PoC
     if: ${{ success() }}
     needs: [build-and-push-image]
     steps:
