@@ -28,7 +28,7 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest 
     if: ${{ success() }}
-    needs: [deploy-aks,create-acr]
+    needs: [deploy-aks]
     steps:
        - uses: actions/checkout@main
        - name: Azure Login
