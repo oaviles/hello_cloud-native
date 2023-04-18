@@ -72,7 +72,7 @@ jobs:
         uses: Azure/cli@v1
         with:
           inlineScript: |
-             WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.LOG_ANALYTICS }} --query "id" -o tsv)
+             WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces --resource-group ${{ secrets.AZURE_RG }} --name ${{ env.LOG_ANALYTICS }} --query "id" -o tsv)
              az aks create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.CLUSTER_NAME }} --node-count 2 --enable-addons monitoring --workspace-resource-id  $WORKSPACE_ID --enable-cluster-autoscaler --min-count 2 --max-count 10 --attach-acr ${{ env.acr_name }} --generate-ssh-keys --yes
              
   deploy-microservice:
