@@ -6,7 +6,7 @@ on:
 env:
   image_name: oapi
   tag: ${{ github.run_number }} 
-  acr_name: ${{ secrets.ACR }}
+  acr_name: ${{ secrets.ACR_NAME }}
   LOG_ANALYTICS: OALogs
   AZURE_RESOURCE_GROUP: Observability_Zone
 
