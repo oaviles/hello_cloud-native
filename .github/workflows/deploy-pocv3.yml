@@ -6,7 +6,7 @@ on:
 env:
   image_name: oapi
   tag: ${{ github.run_number }} 
-  acr_name: oacr0${{ github.run_number }}
+  acr_name: ${{ secrets.ACR }}
   LOG_ANALYTICS: OALogs
   AZURE_RESOURCE_GROUP: Observability_Zone
 
@@ -23,23 +23,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-          az group create --location ${{ secrets.AZURE_REGION }} --name ${{ secrets.AZURE_RG }}
-          
-  create-acr:
-    runs-on: ubuntu-latest
-    if: ${{ success() }}
-    needs: create-resource-group
-    steps:
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
-      - name: Create ACR
-        uses: Azure/cli@v1
-        with:
-          inlineScript: |
-            az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ env.acr_name }} --sku Basic    
+          az group create --location ${{ secrets.AZURE_REGION }} --name ${{ secrets.AZURE_RG }}  
 
   build-and-push-image:
     runs-on: ubuntu-latest 
@@ -61,7 +45,7 @@ jobs:
   deploy-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: [create-acr]
+    needs: [create-resource-group]
     steps:
       - uses: actions/checkout@main
       - name: Azure Login
