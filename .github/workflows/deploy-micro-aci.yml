@@ -6,7 +6,7 @@ on:
 env:
   AZURE_REGION: ${{ secrets.AZURE_REGION }}
   AZURE_RG: ACI_Zone
-  YAML_FILE: /yaml_files/deploy-microservice-aci.yaml
+  YAML_FILE: ./yaml_files/deploy-microservice-aci.yaml
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
