@@ -1,0 +1,30 @@
+apiVersion: '2021-10-01'
+location: eastus
+name: oamlmigrateservice
+type: Microsoft.ContainerInstance/containerGroups
+properties:
+  containers:
+  - name: mlmigrate
+    properties:
+      image: oaviles/oapi:7999
+      resources:
+        requests:
+          cpu: 1
+          memoryInGB: 1
+      ports:
+      - port: 7999
+      environmentVariables:
+      - name: AML_APP_INSIGHTS_ENABLED
+        value: false
+      volumeMounts:
+      - name: aci-signal-dir
+        mountPath: /var/aml_signal_root
+  osType: linux
+  volumes:
+  - name: aci-signal-dir
+    emptyDir: {}
+  restartPolicy: always
+  ipAddress:
+    type: public
+    ports:
+    - port: 7999
