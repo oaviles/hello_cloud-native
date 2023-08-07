@@ -21,7 +21,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Create Azure RG
+    - name: Deploy Microservice
       uses: azure/CLI@v1
       with:
         inlineScript: |
