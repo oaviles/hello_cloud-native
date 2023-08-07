@@ -1,10 +1,10 @@
 apiVersion: '2021-10-01'
 location: eastus
-name: oamlmigrateservice
+name: oamicroservice01
 type: Microsoft.ContainerInstance/containerGroups
 properties:
   containers:
-  - name: mlmigrate
+  - name: oacontainer
     properties:
       image: oaviles/oapi:7999
       resources:
