@@ -1,0 +1,22 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api
+  namespace: api
+spec:
+  TargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  resourcePolicy:
+    containerPolicies:
+    - containerName: '*'
+      miniAllowed:
+        cpu: 100m
+        memory: 50Mi
+      maxAllowed:
+        cpu: 4
+        memory: 50Mi
+      controlledResources: ["cpu", "memory"]
+  updatePolicy:
+    updateMode: "Auto"
