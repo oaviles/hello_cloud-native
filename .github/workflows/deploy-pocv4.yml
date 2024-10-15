@@ -1,0 +1,131 @@
+name: 0 Deploy PoC Env V4
+
+on:
+  workflow_dispatch:
+  
+env:
+  image_name: oapi
+  tag: latest
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  create-resource-group:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Azure RG
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az group create --location ${{ secrets.AZURE_REGION }} --name ${{ secrets.AZURE_RG }}
+          
+  create-acr:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: create-resource-group
+    steps:
+    - uses: actions/checkout@main
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Create ACR
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az acr create --resource-group ${{ secrets.AZURE_RG }} --name ${{ secrets.ACR }} --sku Basic
+          
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: [enable-observability,create-acr]
+    steps:
+    - uses: actions/checkout@main
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Build and Push Image
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az acr build -t ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR_NAME }} .
+  
+  deploy-aks:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: [create-resource-group]
+    steps:
+    - uses: actions/checkout@main
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy AKS
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+        resourceGroupName: ${{ secrets.AZURE_RG }}
+        template: ./IaC/azuredeploy.json
+        parameters: ./IaC/azuredeploy.parameters.json
+        
+        
+  update-aks:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: [enable-observability,create-acr]
+    steps:
+    - uses: actions/checkout@main
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Udpate AKS with ACR
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az aks update -g ${{ secrets.AZURE_RG }} -n ${{ secrets.CLUSTER_NAME }} --attach-acr ${{ secrets.ACR_NAME }}
+          
+    
+  deploy-microservice:
+    runs-on: ubuntu-latest
+    environment:
+      name: PoC
+    if: ${{ success() }}
+    needs: [update-aks,build-and-push-image]
+    steps:
+    - uses: actions/checkout@master
+    - uses: Azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ secrets.CLUSTER_NAME }}
+        resource-group: ${{ secrets.AZURE_RG }}
+
+    - uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: 'api'
+        manifests: |
+          yaml_files/deploy-microservice.yaml
+          
+          
+  create-issue:
+    runs-on: ubuntu-latest
+    if: ${{ failure() }}
+    needs: [deploy-microservice]
+    steps:
+      - name: create-issue
+        uses: oaviles/issue_action@v1
+        with:
+          issue-title: "Deployment Failure: PoC Env - ${{ github.sha }}"
+          issue-body: "Validate orchestration workflow"
+          repo-token: ${{secrets.GITHUB_TOKEN}}       
+          
