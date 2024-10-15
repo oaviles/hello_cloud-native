@@ -81,7 +81,7 @@ jobs:
   update-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: [create-acr]
+    needs: [deploy-aks]
     steps:
     - uses: actions/checkout@main
     - name: Azure Login
