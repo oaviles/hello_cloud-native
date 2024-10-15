@@ -45,7 +45,7 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: [enable-observability,create-acr]
+    needs: [create-acr]
     steps:
     - uses: actions/checkout@main
     - name: Azure Login
@@ -81,7 +81,7 @@ jobs:
   update-aks:
     runs-on: ubuntu-latest
     if: ${{ success() }}
-    needs: [enable-observability,create-acr]
+    needs: [create-acr]
     steps:
     - uses: actions/checkout@main
     - name: Azure Login
