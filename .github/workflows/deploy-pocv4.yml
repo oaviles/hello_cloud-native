@@ -57,7 +57,7 @@ jobs:
       uses: Azure/cli@v1
       with:
         inlineScript: |
-          az acr build -t ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR_NAME }} .
+          az acr build -t ${{ secrets.ACR }}.azurecr.io/${{ env.image_name }}:${{ env.tag }} -r ${{ secrets.ACR }} .
   
   deploy-aks:
     runs-on: ubuntu-latest
